@@ -5,22 +5,22 @@ namespace QuartzSample.Helper
 {
     public static class QuartzExtensions
     {
-        public static void AddQuartzCustom<TJob>(this IServiceCollectionQuartzConfigurator quartz, IConfiguration configuration, TJob job) where TJob : ITaskBase
+        public static void AddQuartzCustom<TJob>(this IServiceCollectionQuartzConfigurator quartz, List<QuartzSettings> quartzSettings) where TJob : ITaskBase
         {
-            var taskConfig = configuration.GetSection(nameof(QuartzSettings)).Get<List<QuartzSettings>>();
-
-            if (taskConfig.Where(x => x.JobName == job.Key.Name && x.TaskIsActive).Any())
+            var jobName = typeof(TJob).Name;
+            var existQuartz = quartzSettings.Where(x => x.JobName == jobName && x.TaskIsActive).FirstOrDefault();
+            if (existQuartz != null)
             {
                 quartz.AddJob<TJob>(options =>
                 {
-                    options.WithIdentity(job.Key)
+                    options.WithIdentity(existQuartz.JobName)
                             .Build();
                 });
 
                 quartz.AddTrigger(options =>
                 {
-                    options.WithIdentity($"{job.Key.Name}Triggger")
-                            .ForJob(job.Key)
+                    options.WithIdentity($"{existQuartz.JobName}Triggger")
+                            .ForJob(existQuartz.JobName)
                             .WithSimpleSchedule(s =>
                                 s.WithIntervalInSeconds(5)
                                  .RepeatForever());
