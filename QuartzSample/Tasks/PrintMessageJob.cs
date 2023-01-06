@@ -1,25 +1,29 @@
 ﻿using Quartz;
+using Quartz.Impl.AdoJobStore.Common;
 using QuartzSample.Servives.Concerete;
 
 namespace QuartzSample.Tasks
 {
     public class PrintMessageJob : ITaskBase
     {
-        private readonly IPropertyOwnerService _propertyOwnerService;
+        private static IPropertyOwnerService _propertyOwnerService;
 
-        public PrintMessageJob(IPropertyOwnerService propertyOwnerService)
-        {
-            _propertyOwnerService = propertyOwnerService;
-        }
+      
 
-        public async Task Execute(IJobExecutionContext context)
+        public async  Task Execute(IJobExecutionContext context)
         {
+            Console.WriteLine(_propertyOwnerService.OperationId);
             var property = await _propertyOwnerService.GetOwners();
 
-            foreach (var item in property!.Data)
-            {
-                Console.WriteLine(item.FirstName);
-            }
+            //foreach (var item in property!.Data)
+            //{
+            //    Console.WriteLine(item.FirstName);
+            //}
+        }
+
+        public void Register(IServiceProvider serviceProvider)
+        {
+            _propertyOwnerService = serviceProvider.GetRequiredService<IPropertyOwnerService>();
         }
     }
 }

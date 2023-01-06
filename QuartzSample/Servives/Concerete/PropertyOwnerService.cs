@@ -7,9 +7,11 @@ namespace QuartzSample.Servives.Concerete
     {
         private readonly HttpClient _httpClient;
 
+        public string OperationId { get; }
         public PropertyOwnerService(HttpClient httpClient)
         {
             _httpClient = httpClient;
+            OperationId = Guid.NewGuid().ToString()[^4..];
         }
 
         public async Task<BaseResponse<List<PropertyOwner>>?> GetOwners()
